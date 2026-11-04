@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+data/*
+!data/.gitkeep
+models/*
+!models/.gitkeep
+*.onnx
+confusion_matrix.png
+.pytest_cache/
