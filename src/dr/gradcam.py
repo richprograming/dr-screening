@@ -6,18 +6,31 @@ import torch.nn.functional as F
 
 
 class GradCAM:
+    """`target_layer` não pode ter a saída alterada in-place pela camada seguinte, pois o
+    hook de backward não aceita isso. `model.features[-1]` da EfficientNet é seguro: depois
+    dele vem o avgpool. Uma instância guarda estado e não deve ser usada em paralelo."""
+
     def __init__(self, model: torch.nn.Module, target_layer: torch.nn.Module):
         self.model, self.acts, self.grads = model.eval(), None, None
-        target_layer.register_forward_hook(lambda m, i, o: setattr(self, "acts", o.detach()))
-        target_layer.register_full_backward_hook(lambda m, gi, go: setattr(self, "grads", go[0].detach()))
+        self._hooks = [
+            target_layer.register_forward_hook(lambda m, i, o: setattr(self, "acts", o.detach())),
+            target_layer.register_full_backward_hook(lambda m, gi, go: setattr(self, "grads", go[0].detach())),
+        ]
+
+    def remove(self) -> None:
+        """Remove os hooks; sem isso, cada nova instância acumula hooks no modelo."""
+        for h in self._hooks:
+            h.remove()
+        self._hooks = []
 
     def __call__(self, x: torch.Tensor, class_idx: int | None = None):
         """x: (1,3,H,W). Retorna (mapa 0-1 HxW, classe, probabilidades)."""
         self.model.zero_grad()
-        logits = self.model(x)
-        probs = logits.softmax(1)[0].detach().cpu().numpy()
-        class_idx = int(logits.argmax(1)) if class_idx is None else class_idx
-        logits[0, class_idx].backward()
+        with torch.enable_grad():  # funciona mesmo se chamado dentro de torch.no_grad()
+            logits = self.model(x)
+            probs = logits.softmax(1)[0].detach().cpu().numpy()
+            class_idx = int(logits.argmax(1)) if class_idx is None else class_idx
+            logits[0, class_idx].backward()
         weights = self.grads.mean(dim=(2, 3), keepdim=True)
         cam = F.relu((weights * self.acts).sum(1, keepdim=True))
         cam = F.interpolate(cam, size=x.shape[2:], mode="bilinear", align_corners=False)[0, 0]
