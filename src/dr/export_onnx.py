@@ -6,22 +6,23 @@ from pathlib import Path
 
 import torch
 
-from .model import build_model
+from .model import load_model
 
 
-def main():
+def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--weights", type=Path, default=Path("models/best.pt"))
     ap.add_argument("--out", type=Path, default=Path("models/dr.onnx"))
     ap.add_argument("--size", type=int, default=320)
-    a = ap.parse_args()
+    a = ap.parse_args(argv)
 
-    model = build_model(pretrained=False).eval()
-    model.load_state_dict(torch.load(a.weights, map_location="cpu"))
-    dummy = torch.randn(1, 3, a.size, a.size)
+    model = load_model(a.weights)
+    dummy = torch.randn(2, 3, a.size, a.size)  # lote > 1: com 1, o exportador pode fixar o tamanho
+    a.out.parent.mkdir(parents=True, exist_ok=True)
     torch.onnx.export(
-        model, dummy, a.out, input_names=["image"], output_names=["logits"],
-        dynamic_axes={"image": {0: "batch"}, "logits": {0: "batch"}}, opset_version=17,
+        model, (dummy,), str(a.out), input_names=["image"], output_names=["logits"],
+        dynamic_shapes=({0: torch.export.Dim("batch")},), opset_version=18,
+        external_data=False,  # um único arquivo .onnx, sem .onnx.data ao lado
     )
     print(f"exportado: {a.out}")
 
