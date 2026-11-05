@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import pandas as pd
 
-from scripts.check_duplicates import cross_split_distances, main, phash
+from scripts.check_duplicates import cross_split_distances, main, phash, vessel_signature
 from scripts.make_synthetic_data import generate
 from src.dr import train
 from src.dr.data import make_splits
@@ -41,6 +41,35 @@ def test_phash_separates_different_images():
     assert bits(fundus(3), fundus(4)) > 8
 
 
+def textured(seed: int, size: int = 512) -> np.ndarray:
+    """Como fundus(), mas com detalhes finos, que é o que a assinatura compara."""
+    rng = np.random.default_rng(seed)
+    noise = cv2.resize(rng.random((48, 48, 3)).astype(np.float32), (size, size), interpolation=cv2.INTER_CUBIC)
+    img = np.uint8(np.clip(noise * 255, 8, 255))
+    mask = np.zeros((size, size), np.uint8)
+    cv2.circle(mask, (size // 2, size // 2), size // 2 - 8, 255, -1)
+    img[mask == 0] = 0
+    return img
+
+
+def test_signature_high_for_altered_copies_and_low_for_other_images():
+    img = textured(5)
+    sig = vessel_signature(img)
+    assert sig @ vessel_signature(img) > 0.999
+    assert sig @ vessel_signature(cv2.resize(img, (300, 300), interpolation=cv2.INTER_AREA)) > 0.9
+    # beta fica abaixo da tolerância do recorte (7). Acima dela a borda não é cortada e a cópia
+    # passa despercebida, então o método dá um piso do número de duplicatas.
+    assert sig @ vessel_signature(cv2.convertScaleAbs(img, alpha=0.85, beta=5)) > 0.9
+    assert abs(sig @ vessel_signature(textured(6))) < 0.3
+
+
+def test_signature_ignores_shared_disk_outline():
+    """Um disco liso e um disco com textura têm o mesmo contorno, mas não são a mesma imagem."""
+    plain = np.zeros((512, 512, 3), np.uint8)
+    cv2.circle(plain, (256, 256), 248, (180, 90, 40), -1)
+    assert abs(vessel_signature(plain) @ vessel_signature(textured(7))) < 0.3
+
+
 def test_distance_matrix_shape_and_values():
     val = np.array([[True, True, False], [False, False, False]])
     train_hashes = np.array([[True, True, False], [True, True, True], [False, True, False]])
@@ -73,4 +102,6 @@ def test_report_finds_planted_duplicate(tmp_path):
     planted = pairs[(pairs.val_id == src) & (pairs.train_id == dst)]
     assert len(planted) == 1
     assert planted.bit_distance.iloc[0] == 0
+    assert planted.correlation.iloc[0] > 0.999
     assert planted.val_label.iloc[0] == 4 and planted.train_label.iloc[0] == 0
+    assert report["by_correlation"][-1]["val_images_with_match"] >= 1
