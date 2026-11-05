@@ -1,20 +1,31 @@
-# 👁️ Triagem de Retinopatia Diabética com Deep Learning
+# Triagem de Retinopatia Diabética com Deep Learning
 
-Classificação de imagens de fundo de olho em 5 graus de retinopatia diabética (RD), com **explicabilidade (Grad-CAM)** e API de inferência.
+[![CI](https://github.com/richprograming/dr-screening/actions/workflows/ci.yml/badge.svg)](https://github.com/richprograming/dr-screening/actions/workflows/ci.yml)
+[![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE)
+
+Classificação de imagens de fundo de olho nos 5 graus de retinopatia diabética (RD), com explicabilidade por Grad-CAM, API de inferência e demo interativa. O modelo foi treinado e avaliado com o dataset APTOS 2019.
 
 > ⚠️ Projeto educacional. Não é dispositivo médico. Veja o [Model Card](MODEL_CARD.md).
 
-## Destaques
-- Transfer learning com **EfficientNet-B0**
-- Pré-processamento de Ben Graham para realçar lesões
-- Tratamento de **desbalanceamento de classes**
-- Métrica oficial da competição: **Quadratic Weighted Kappa**
-- Métrica clínica: AUC de **encaminhamento** (RD moderada ou pior)
-- **Grad-CAM** implementado do zero
-- API **FastAPI** + exportação **ONNX** + Dockerfile incluído
+**Na validação (733 imagens):** QWK de 0,898 e AUC de encaminhamento de 0,986. O recall nos graus graves ainda é limitado; veja os [resultados](#resultados) e as [limitações](#limitações).
+
+## Abordagem
+
+| Etapa | Decisão |
+|---|---|
+| Modelo | EfficientNet-B0 pré-treinada no ImageNet, com fine-tuning completo |
+| Pré-processamento | Recorte de bordas e realce de lesões pelo método de Ben Graham |
+| Desbalanceamento | Perda de entropia cruzada com pesos por classe |
+| Otimização | AdamW com taxa de aprendizado cosseno |
+| Métrica principal | Quadratic Weighted Kappa (QWK), a métrica oficial da competição |
+| Métrica de triagem | AUC de encaminhamento (RD moderada ou pior) |
+| Explicabilidade | Grad-CAM implementado do zero, com testes contra gradientes calculados à mão |
+| Entrega | API em FastAPI, demo em Gradio, exportação ONNX e Dockerfile |
+| Qualidade | Testes automatizados, incluindo ponta a ponta com imagens sintéticas, e CI no GitHub Actions |
 
 ## Resultados
-Resultados nos 733 casos de validação (20% do APTOS 2019, seed 42), também usados para escolher a melhor época. Por isso, os valores tendem a ser otimistas; veja as limitações no [Model Card](MODEL_CARD.md). Os dados completos estão em [`docs/metrics.json`](docs/metrics.json).
+
+Avaliação nos 733 casos de validação (20% do APTOS 2019, divisão estratificada, seed 42). A reavaliação em um segundo ambiente reproduziu exatamente as mesmas métricas. Os dados completos estão em [`docs/metrics.json`](docs/metrics.json).
 
 | Métrica | Valor |
 |---|---|
@@ -34,53 +45,58 @@ Resultados nos 733 casos de validação (20% do APTOS 2019, seed 42), também us
 
 ![Matriz de confusão](docs/confusion_matrix.png)
 
-### Imagens duplicadas
-O APTOS tem imagens repetidas entre treino e validação nesta divisão: 47 das 733 imagens de validação (6,4%) têm uma cópia provável no treino (correlação de detalhes finos ≥ 0,9), e 14 dos 54 pares têm graus diferentes. Sem essas 47 imagens, o QWK fica em 0,904 e a AUC em 0,986, sem queda em relação aos valores acima, então o modelo não foi treinado de novo. O método pode deixar passar cópias muito alteradas. Reproduza com `scripts/check_duplicates.py`; os dados estão em [`docs/duplicates_report.json`](docs/duplicates_report.json).
+## Limitações
 
-### Exemplos de Grad-CAM
-Os exemplos não são publicados aqui porque contêm imagens do APTOS, e as [regras da competição](https://www.kaggle.com/competitions/aptos2019-blindness-detection/rules) proíbem redistribuir os dados a quem não participa dela. Quem tem acesso ao dataset pode gerá-los com `scripts/gradcam_demo.py`; os arquivos ficam em `docs/`, ignorados pelo Git.
+**Validação usada na seleção do modelo.** Os mesmos 733 casos escolheram a melhor época e geraram as métricas, sem conjunto de teste separado. Por isso, os valores tendem a ser otimistas.
 
-Na primeira imagem de cada grau na validação, sem seleção manual, houve 3 acertos e 2 erros. Nesses exemplos, o mapa muitas vezes destaca o disco óptico ou a periferia, e não as lesões mais visíveis. Isso não confirma que o modelo se baseia em lesões reais.
+**Imagens duplicadas.** 47 das 733 imagens de validação (6,4%) têm uma cópia provável no treino (correlação de detalhes finos ≥ 0,9), e 14 dos 54 pares têm graus diferentes. Sem essas 47 imagens, o QWK fica em 0,904 e a AUC em 0,986, sem queda em relação aos valores acima, então o modelo não foi treinado de novo. O método pode deixar passar cópias muito alteradas. Reproduza com `scripts/check_duplicates.py`; os dados estão em [`docs/duplicates_report.json`](docs/duplicates_report.json).
 
-## Como rodar
+**Grad-CAM.** Na primeira imagem de cada grau na validação, sem seleção manual, houve 3 acertos e 2 erros. Nesses exemplos, o mapa muitas vezes destaca o disco óptico ou a periferia, e não as lesões mais visíveis. Isso não confirma que o modelo se baseia em lesões reais.
+
+Os exemplos de Grad-CAM não são publicados aqui porque contêm imagens do APTOS, e as [regras da competição](https://www.kaggle.com/competitions/aptos2019-blindness-detection/rules) proíbem redistribuir os dados a quem não participa dela. Quem tem acesso ao dataset pode gerá-los com `scripts/gradcam_demo.py`; os arquivos ficam em `docs/`, ignorados pelo Git.
+
+Outras limitações estão no [Model Card](MODEL_CARD.md).
+
+## Como executar
+
 Requer Python 3.11.
 
 ```bash
 pip install -r requirements.txt
 
-# 1. Baixe o APTOS 2019 (veja a seção abaixo)
-
-# 2. Treine (sem GPU, use o notebook train_colab.ipynb)
+# Treino (sem GPU, use o notebook train_colab.ipynb)
 python -m src.dr.train --data data/aptos --epochs 15
 
-# 3. Avalie (grava docs/metrics.json e docs/confusion_matrix.png)
+# Avaliação (grava docs/metrics.json e docs/confusion_matrix.png)
 python -m src.dr.evaluate --data data/aptos --weights models/best.pt
 
-# 4. Gere exemplos de Grad-CAM em docs/
+# Exemplos de Grad-CAM em docs/
 python scripts/gradcam_demo.py --data data/aptos --weights models/best.pt
 
-# 5. Suba a API
+# API
 uvicorn api.main:app --reload
 curl -F "file=@exemplo.png" http://localhost:8000/predict
 
-# 6. Ou abra a demo em Gradio
+# Demo em Gradio
 python app.py
 ```
 
-Docker: `docker build -t dr-screening . && docker run -p 8000:8000 dr-screening`. Coloque `models/best.pt` antes do build; sem os pesos, a API sobe, mas `/predict` responde 503. O build da imagem ainda não foi testado.
+Os pesos treinados (`models/best.pt`) não são versionados. Para usar a API ou a demo, treine o modelo antes.
 
-Testes: `pytest` (usam imagens sintéticas e não baixam nada).
+**Testes:** `pytest` usa imagens sintéticas e não baixa nada. Para testar o pipeline sem o dataset real:
 
-Para testar o pipeline sem o dataset real:
 ```bash
 python scripts/make_synthetic_data.py --out data/synthetic
 python -m src.dr.train --data data/synthetic --epochs 1 --bs 8 --out models/smoke.pt
 ```
 
-### Baixar o APTOS 2019
-São cerca de 10 GB.
+**Docker:** `docker build -t dr-screening . && docker run -p 8000:8000 dr-screening`. Coloque `models/best.pt` antes do build; sem os pesos, a API sobe, mas `/predict` responde 503. O build da imagem ainda não foi testado.
 
-1. Aceite as regras da [competição](https://www.kaggle.com/competitions/aptos2019-blindness-detection/rules); sem isso, o download dá erro 403.
+### Dataset
+
+O APTOS 2019 tem cerca de 10 GB e não está no repositório.
+
+1. Aceite as [regras da competição](https://www.kaggle.com/competitions/aptos2019-blindness-detection/rules); sem isso, o download dá erro 403.
 2. Instale o CLI e faça login:
    ```bash
    pip install kaggle six
@@ -89,16 +105,17 @@ São cerca de 10 GB.
    Como alternativa, gere um token em [kaggle.com/settings](https://www.kaggle.com/settings) e defina a variável `KAGGLE_API_TOKEN`.
 3. Baixe e extraia só o necessário em `data/aptos/` (o `tar` também funciona no Windows 10 ou superior):
    ```bash
-   kaggle competitions download -c aptos2019-blindness-detection -p data/aptos
+   kaggle competitions download aptos2019-blindness-detection -p data/aptos
    tar -xf data/aptos/aptos2019-blindness-detection.zip -C data/aptos train.csv train_images
    ```
 
 O resultado deve ser `data/aptos/train.csv` e `data/aptos/train_images/`, com 3.662 imagens PNG.
 
 ## Estrutura
+
 ```
 src/dr/            data, model, train, evaluate, gradcam, inference, export_onnx
-api/               FastAPI
+api/               API em FastAPI
 scripts/           gradcam_demo, make_synthetic_data, check_duplicates
 tests/             testes do pipeline e de ponta a ponta
 app.py             demo em Gradio (veja docs/huggingface_space.md)
@@ -106,12 +123,13 @@ train_colab.ipynb  treino no Google Colab
 ```
 
 ## Próximos passos
-- [x] Treinar e preencher métricas
+
+- [ ] Avaliar em um conjunto de teste separado, com as duplicatas agrupadas na divisão
 - [ ] Comparar com ConvNeXt/ViT e ensemble
-- [ ] Regressão ordinal em vez de classificação
-- [ ] Calibração de probabilidades e detecção de imagens fora de distribuição
+- [ ] Testar regressão ordinal em vez de classificação
+- [ ] Calibrar probabilidades e detectar imagens fora de distribuição
 - [ ] Publicar a demo no Hugging Face Spaces
-- [x] CI com GitHub Actions
 
 ## Licença
+
 O código está sob a [licença MIT](LICENSE). Ela não cobre os dados do APTOS 2019, que seguem as regras da competição no Kaggle.
