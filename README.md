@@ -1,6 +1,6 @@
 # 👁️ Triagem de Retinopatia Diabética com Deep Learning
 
-Classificação de imagens de fundo de olho em 5 graus de retinopatia diabética (RD), com **explicabilidade (Grad-CAM)**, API de inferência e deploy em Docker.
+Classificação de imagens de fundo de olho em 5 graus de retinopatia diabética (RD), com **explicabilidade (Grad-CAM)** e API de inferência.
 
 > ⚠️ Projeto educacional. Não é dispositivo médico. Veja o [Model Card](MODEL_CARD.md).
 
@@ -11,7 +11,7 @@ Classificação de imagens de fundo de olho em 5 graus de retinopatia diabética
 - Métrica oficial da competição: **Quadratic Weighted Kappa**
 - Métrica clínica: AUC de **encaminhamento** (RD moderada ou pior)
 - **Grad-CAM** implementado do zero
-- API **FastAPI** + exportação **ONNX** + **Docker**
+- API **FastAPI** + exportação **ONNX** + Dockerfile incluído
 
 ## Resultados
 Resultados nos 733 casos de validação (20% do APTOS 2019, seed 42), também usados para escolher a melhor época. Por isso, os valores tendem a ser otimistas; veja as limitações no [Model Card](MODEL_CARD.md). Os dados completos estão em [`docs/metrics.json`](docs/metrics.json).
@@ -40,7 +40,7 @@ O APTOS tem imagens repetidas entre treino e validação nesta divisão: 47 das 
 ### Exemplos de Grad-CAM
 Os exemplos não são publicados aqui porque contêm imagens do APTOS, e as [regras da competição](https://www.kaggle.com/competitions/aptos2019-blindness-detection/rules) proíbem redistribuir os dados a quem não participa dela. Quem tem acesso ao dataset pode gerá-los com `scripts/gradcam_demo.py`; os arquivos ficam em `docs/`, ignorados pelo Git.
 
-Inspecionei a primeira imagem de cada grau na validação, sem seleção manual: 3 acertos e 2 erros. Nesses exemplos, o mapa muitas vezes destaca o disco óptico ou a periferia, e não as lesões mais visíveis. Isso não confirma que o modelo se baseia em lesões reais.
+Na primeira imagem de cada grau na validação, sem seleção manual, houve 3 acertos e 2 erros. Nesses exemplos, o mapa muitas vezes destaca o disco óptico ou a periferia, e não as lesões mais visíveis. Isso não confirma que o modelo se baseia em lesões reais.
 
 ## Como rodar
 Requer Python 3.11.
@@ -67,7 +67,7 @@ curl -F "file=@exemplo.png" http://localhost:8000/predict
 python app.py
 ```
 
-Docker: `docker build -t dr-screening . && docker run -p 8000:8000 dr-screening`. Coloque `models/best.pt` antes do build; sem os pesos, a API sobe, mas `/predict` responde 503.
+Docker: `docker build -t dr-screening . && docker run -p 8000:8000 dr-screening`. Coloque `models/best.pt` antes do build; sem os pesos, a API sobe, mas `/predict` responde 503. O build da imagem ainda não foi testado.
 
 Testes: `pytest` (usam imagens sintéticas e não baixam nada).
 
@@ -112,3 +112,6 @@ train_colab.ipynb  treino no Google Colab
 - [ ] Calibração de probabilidades e detecção de imagens fora de distribuição
 - [ ] Publicar a demo no Hugging Face Spaces
 - [x] CI com GitHub Actions
+
+## Licença
+O código está sob a [licença MIT](LICENSE). Ela não cobre os dados do APTOS 2019, que seguem as regras da competição no Kaggle.
