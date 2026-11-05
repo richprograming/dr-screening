@@ -16,7 +16,11 @@ EfficientNet-B0 pré-treinado (ImageNet), fine-tuning completo, perda com pesos 
 | AUC encaminhamento (grau ≥ 2) | _TODO_ |
 | Recall por classe | _TODO_ |
 
+As métricas vêm de `python -m src.dr.evaluate` e ficam registradas em `docs/metrics.json`.
+
 ## Limitações conhecidas
+- As métricas são calculadas nos mesmos 20% de validação usados para escolher a melhor época, sem conjunto de teste separado, então tendem a ser otimistas.
+- A divisão não verifica imagens duplicadas ou quase duplicadas entre treino e validação.
 - Dataset de uma única origem (Índia): generalização para outras câmeras, populações e protocolos não foi validada.
 - Classes intermediárias (leve/moderada) são as mais confundidas, até entre oftalmologistas.
 - Grad-CAM mostra regiões influentes, não prova que o modelo "enxerga" lesões reais.
