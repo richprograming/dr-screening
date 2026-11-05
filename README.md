@@ -34,6 +34,9 @@ Resultados nos 733 casos de validação (20% do APTOS 2019, seed 42), também us
 
 ![Matriz de confusão](docs/confusion_matrix.png)
 
+### Imagens duplicadas
+O APTOS tem imagens repetidas entre treino e validação nesta divisão: 47 das 733 imagens de validação (6,4%) têm uma cópia provável no treino (correlação de detalhes finos ≥ 0,9), e 14 dos 54 pares têm graus diferentes. Sem essas 47 imagens, o QWK fica em 0,904 e a AUC em 0,986, sem queda em relação aos valores acima, então o modelo não foi treinado de novo. O método pode deixar passar cópias muito alteradas. Reproduza com `scripts/check_duplicates.py`; os dados estão em [`docs/duplicates_report.json`](docs/duplicates_report.json).
+
 ### Exemplos de Grad-CAM
 Os exemplos não são publicados aqui porque contêm imagens do APTOS, e as [regras da competição](https://www.kaggle.com/competitions/aptos2019-blindness-detection/rules) proíbem redistribuir os dados a quem não participa dela. Quem tem acesso ao dataset pode gerá-los com `scripts/gradcam_demo.py`; os arquivos ficam em `docs/`, ignorados pelo Git.
 

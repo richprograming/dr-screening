@@ -1,0 +1,245 @@
+{
+  "n_train": 2929,
+  "n_val": 733,
+  "full_validation": {
+    "n": 733,
+    "qwk": 0.8977426943921145,
+    "auc_referral": 0.9857980405770268,
+    "accuracy": 0.8171896316507503,
+    "recall_per_class": {
+      "Sem RD": 0.961218836565097,
+      "Leve": 0.581081081081081,
+      "Moderada": 0.775,
+      "Grave": 0.46153846153846156,
+      "Proliferativa": 0.6101694915254238
+    },
+    "support_per_class": {
+      "Sem RD": 361,
+      "Leve": 74,
+      "Moderada": 200,
+      "Grave": 39,
+      "Proliferativa": 59
+    },
+    "confusion_matrix": [
+      [
+        347,
+        12,
+        2,
+        0,
+        0
+      ],
+      [
+        5,
+        43,
+        25,
+        0,
+        1
+      ],
+      [
+        1,
+        14,
+        155,
+        19,
+        11
+      ],
+      [
+        0,
+        1,
+        14,
+        18,
+        6
+      ],
+      [
+        0,
+        3,
+        13,
+        7,
+        36
+      ]
+    ]
+  },
+  "by_threshold": [
+    {
+      "max_bit_distance": 0,
+      "cross_split_pairs": 48,
+      "val_images_with_match": 45,
+      "pairs_with_different_labels": 14,
+      "metrics_without_matches": {
+        "n": 688,
+        "qwk": 0.9043512019054214,
+        "auc_referral": 0.9861294230837758,
+        "accuracy": 0.8270348837209303,
+        "recall_per_class": {
+          "Sem RD": 0.9689265536723164,
+          "Leve": 0.5735294117647058,
+          "Moderada": 0.776536312849162,
+          "Grave": 0.5,
+          "Proliferativa": 0.5882352941176471
+        }
+      }
+    },
+    {
+      "max_bit_distance": 2,
+      "cross_split_pairs": 113,
+      "val_images_with_match": 88,
+      "pairs_with_different_labels": 25,
+      "metrics_without_matches": {
+        "n": 645,
+        "qwk": 0.9014102636300009,
+        "auc_referral": 0.9852487408675572,
+        "accuracy": 0.8201550387596899,
+        "recall_per_class": {
+          "Sem RD": 0.9654088050314465,
+          "Leve": 0.578125,
+          "Moderada": 0.7740112994350282,
+          "Grave": 0.5142857142857142,
+          "Proliferativa": 0.5882352941176471
+        }
+      }
+    },
+    {
+      "max_bit_distance": 4,
+      "cross_split_pairs": 667,
+      "val_images_with_match": 232,
+      "pairs_with_different_labels": 95,
+      "metrics_without_matches": {
+        "n": 501,
+        "qwk": 0.8916411759253318,
+        "auc_referral": 0.9812002311841768,
+        "accuracy": 0.8043912175648703,
+        "recall_per_class": {
+          "Sem RD": 0.9530516431924883,
+          "Leve": 0.6271186440677966,
+          "Moderada": 0.7843137254901961,
+          "Grave": 0.5161290322580645,
+          "Proliferativa": 0.6
+        }
+      }
+    },
+    {
+      "max_bit_distance": 6,
+      "cross_split_pairs": 2657,
+      "val_images_with_match": 401,
+      "pairs_with_different_labels": 483,
+      "metrics_without_matches": {
+        "n": 332,
+        "qwk": 0.870232498776882,
+        "auc_referral": 0.975065331010453,
+        "accuracy": 0.7740963855421686,
+        "recall_per_class": {
+          "Sem RD": 0.9349593495934959,
+          "Leve": 0.6341463414634146,
+          "Moderada": 0.7570093457943925,
+          "Grave": 0.5517241379310345,
+          "Proliferativa": 0.59375
+        }
+      }
+    },
+    {
+      "max_bit_distance": 8,
+      "cross_split_pairs": 7927,
+      "val_images_with_match": 578,
+      "pairs_with_different_labels": 1766,
+      "metrics_without_matches": {
+        "n": 155,
+        "qwk": 0.8635468550909302,
+        "auc_referral": 0.9739010989010989,
+        "accuracy": 0.7161290322580646,
+        "recall_per_class": {
+          "Sem RD": 0.9069767441860465,
+          "Leve": 0.5714285714285714,
+          "Moderada": 0.6851851851851852,
+          "Grave": 0.5,
+          "Proliferativa": 0.7368421052631579
+        }
+      }
+    }
+  ],
+  "best_correlation_histogram": {
+    "-1 a 0.2": 17,
+    "0.2 a 0.4": 186,
+    "0.4 a 0.6": 379,
+    "0.6 a 0.8": 85,
+    "0.8 a 0.9": 19,
+    "0.9 a 0.95": 4,
+    "0.95 a 1.01": 43
+  },
+  "by_correlation": [
+    {
+      "min_correlation": 0.6,
+      "cross_split_pairs": 3144,
+      "val_images_with_match": 151,
+      "pairs_with_different_labels": 52,
+      "metrics_without_matches": {
+        "n": 582,
+        "qwk": 0.8966044694583459,
+        "auc_referral": 0.9828652223926381,
+        "accuracy": 0.8058419243986255,
+        "recall_per_class": {
+          "Sem RD": 0.9583333333333334,
+          "Leve": 0.5645161290322581,
+          "Moderada": 0.7848837209302325,
+          "Grave": 0.48484848484848486,
+          "Proliferativa": 0.5882352941176471
+        }
+      }
+    },
+    {
+      "min_correlation": 0.8,
+      "cross_split_pairs": 232,
+      "val_images_with_match": 66,
+      "pairs_with_different_labels": 14,
+      "metrics_without_matches": {
+        "n": 667,
+        "qwk": 0.9021444567164096,
+        "auc_referral": 0.9854124088275552,
+        "accuracy": 0.8215892053973014,
+        "recall_per_class": {
+          "Sem RD": 0.9669669669669669,
+          "Leve": 0.5735294117647058,
+          "Moderada": 0.776536312849162,
+          "Grave": 0.5,
+          "Proliferativa": 0.5882352941176471
+        }
+      }
+    },
+    {
+      "min_correlation": 0.9,
+      "cross_split_pairs": 54,
+      "val_images_with_match": 47,
+      "pairs_with_different_labels": 14,
+      "metrics_without_matches": {
+        "n": 686,
+        "qwk": 0.9041510468567934,
+        "auc_referral": 0.9860723236663086,
+        "accuracy": 0.826530612244898,
+        "recall_per_class": {
+          "Sem RD": 0.96875,
+          "Leve": 0.5735294117647058,
+          "Moderada": 0.776536312849162,
+          "Grave": 0.5,
+          "Proliferativa": 0.5882352941176471
+        }
+      }
+    },
+    {
+      "min_correlation": 0.95,
+      "cross_split_pairs": 46,
+      "val_images_with_match": 43,
+      "pairs_with_different_labels": 14,
+      "metrics_without_matches": {
+        "n": 690,
+        "qwk": 0.9045493696656487,
+        "auc_referral": 0.9861948503333806,
+        "accuracy": 0.827536231884058,
+        "recall_per_class": {
+          "Sem RD": 0.9691011235955056,
+          "Leve": 0.5735294117647058,
+          "Moderada": 0.776536312849162,
+          "Grave": 0.5,
+          "Proliferativa": 0.5882352941176471
+        }
+      }
+    }
+  ]
+}

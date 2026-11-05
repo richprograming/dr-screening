@@ -29,7 +29,8 @@ As métricas vêm de `python -m src.dr.evaluate` e ficam registradas em `docs/me
 
 ## Limitações conhecidas
 - As métricas são calculadas nos mesmos 20% de validação usados para escolher a melhor época, sem conjunto de teste separado, então tendem a ser otimistas.
-- A divisão não verifica imagens duplicadas ou quase duplicadas entre treino e validação.
+- A divisão não separa imagens duplicadas: 47 das 733 imagens de validação (6,4%) têm cópia provável no treino (correlação de detalhes finos ≥ 0,9), o que também afeta o treino. Sem elas, o QWK fica em 0,904 e a AUC em 0,986; a alta do QWK não indica melhora, pois a exclusão também remove pares com rótulos conflitantes. A verificação pode deixar passar cópias muito alteradas (`docs/duplicates_report.json`).
+- Rótulos inconsistentes: 14 dos 54 pares de cópias prováveis têm graus diferentes, o que limita o desempenho mensurável.
 - Dataset de uma única origem (Índia): generalização para outras câmeras, populações e protocolos não foi validada.
 - Classes intermediárias (leve/moderada) são as mais confundidas, até entre oftalmologistas.
 - Grad-CAM mostra regiões influentes, não prova que o modelo "enxerga" lesões reais. Em 5 exemplos inspecionados, o mapa muitas vezes destaca o disco óptico ou a periferia, e não as lesões mais visíveis. Essa amostra é pequena e não substitui uma avaliação sistemática.
