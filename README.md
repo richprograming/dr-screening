@@ -80,7 +80,7 @@ São cerca de 10 GB.
 1. Aceite as regras da [competição](https://www.kaggle.com/competitions/aptos2019-blindness-detection/rules); sem isso, o download dá erro 403.
 2. Instale o CLI e faça login:
    ```bash
-   pip install kaggle
+   pip install kaggle six
    kaggle auth login
    ```
    Como alternativa, gere um token em [kaggle.com/settings](https://www.kaggle.com/settings) e defina a variável `KAGGLE_API_TOKEN`.
@@ -96,7 +96,7 @@ O resultado deve ser `data/aptos/train.csv` e `data/aptos/train_images/`, com 3.
 ```
 src/dr/            data, model, train, evaluate, gradcam, inference, export_onnx
 api/               FastAPI
-scripts/           gradcam_demo, make_synthetic_data
+scripts/           gradcam_demo, make_synthetic_data, check_duplicates
 tests/             testes do pipeline e de ponta a ponta
 app.py             demo em Gradio (veja docs/huggingface_space.md)
 train_colab.ipynb  treino no Google Colab
