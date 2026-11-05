@@ -9,3 +9,5 @@ models/*
 *.onnx.data
 .pytest_cache/
 .gradio/
+# Contêm imagens do APTOS, que as regras da competição proíbem redistribuir.
+docs/gradcam_*.png
