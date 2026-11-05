@@ -14,7 +14,30 @@ Classificação de imagens de fundo de olho em 5 graus de retinopatia diabética
 - API **FastAPI** + exportação **ONNX** + **Docker**
 
 ## Resultados
-_Preencher após o treino: QWK, AUC, matriz de confusão e exemplos de Grad-CAM (adicione imagens em `docs/`)._
+Resultados nos 733 casos de validação (20% do APTOS 2019, seed 42), também usados para escolher a melhor época. Por isso, os valores tendem a ser otimistas; veja as limitações no [Model Card](MODEL_CARD.md). Os dados completos estão em [`docs/metrics.json`](docs/metrics.json).
+
+| Métrica | Valor |
+|---|---|
+| Quadratic Weighted Kappa | 0,898 |
+| AUC de encaminhamento (grau ≥ 2) | 0,986 |
+| Acurácia | 0,817 |
+| Sensibilidade de encaminhamento (grau previsto ≥ 2) | 0,936 (279 de 298) |
+| Especificidade de encaminhamento (grau previsto ≥ 2) | 0,936 (407 de 435) |
+
+| Grau | Recall | Casos |
+|---|---|---|
+| Sem RD | 0,961 | 361 |
+| Leve | 0,581 | 74 |
+| Moderada | 0,775 | 200 |
+| Grave | 0,462 | 39 |
+| Proliferativa | 0,610 | 59 |
+
+![Matriz de confusão](docs/confusion_matrix.png)
+
+### Exemplos de Grad-CAM
+Os exemplos não são publicados aqui porque contêm imagens do APTOS, e as [regras da competição](https://www.kaggle.com/competitions/aptos2019-blindness-detection/rules) proíbem redistribuir os dados a quem não participa dela. Quem tem acesso ao dataset pode gerá-los com `scripts/gradcam_demo.py`; os arquivos ficam em `docs/`, ignorados pelo Git.
+
+Inspecionei a primeira imagem de cada grau na validação, sem seleção manual: 3 acertos e 2 erros. Nesses exemplos, o mapa muitas vezes destaca o disco óptico ou a periferia, e não as lesões mais visíveis. Isso não confirma que o modelo se baseia em lesões reais.
 
 ## Como rodar
 Requer Python 3.11.
@@ -80,7 +103,7 @@ train_colab.ipynb  treino no Google Colab
 ```
 
 ## Próximos passos
-- [ ] Treinar e preencher métricas
+- [x] Treinar e preencher métricas
 - [ ] Comparar com ConvNeXt/ViT e ensemble
 - [ ] Regressão ordinal em vez de classificação
 - [ ] Calibração de probabilidades e detecção de imagens fora de distribuição
